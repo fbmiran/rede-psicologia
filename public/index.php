@@ -1,9 +1,17 @@
 <?php
+session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../src/controllers/AuthController.php';
+require_once __DIR__ . '/../src/controllers/PsicologoController.php';
+
 
 $rota = $_GET['rota'] ?? 'login';
 $auth = new AuthController($pdo);
+$psicologo = new PsicologoController($pdo); // Passando $pdo se necessário
+
 
 switch ($rota) {
     case 'login':
@@ -17,6 +25,12 @@ switch ($rota) {
         break;
     case 'dashboard':
         $auth->dashboard();
+        break;
+    case 'perfil':
+        $_SERVER['REQUEST_METHOD'] === 'POST' ? $psicologo->atualizarPerfil() : $psicologo->perfil();
+        break;
+    case 'atualizar_perfil': // ✅ rota para salvar o formulário
+        $psicologo->atualizarPerfil();
         break;
     default:
         echo "Rota inválida.";
