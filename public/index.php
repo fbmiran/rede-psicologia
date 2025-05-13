@@ -44,7 +44,14 @@ switch ($rota) {
     case 'novo_post':
         (new PostController($pdo))->novoPost();
         break;
-            
+    case 'seguir':
+        $controller = new PostController($pdo);
+        $controller->seguir();
+        break;
+    case 'deixarDeSeguir':
+        $controller = new PostController($pdo);
+        $controller->deixarDeSeguir();
+        break;
     default:
         echo "Rota inválida.";
 }
