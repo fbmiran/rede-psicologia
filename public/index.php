@@ -6,6 +6,8 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../src/controllers/AuthController.php';
 require_once __DIR__ . '/../src/controllers/PsicologoController.php';
+require_once __DIR__ . '/../src/controllers/PostController.php';
+
 
 
 $rota = $_GET['rota'] ?? 'login';
@@ -32,6 +34,17 @@ switch ($rota) {
     case 'atualizar_perfil': // ✅ rota para salvar o formulário
         $psicologo->atualizarPerfil();
         break;
+    case 'ver_perfil':
+        $controller = new PsicologoController($pdo);
+        $controller->verPerfil($_GET['id']);
+        break;
+    case 'mural':
+        (new PostController($pdo))->mural();
+        break;
+    case 'novo_post':
+        (new PostController($pdo))->novoPost();
+        break;
+            
     default:
         echo "Rota inválida.";
 }
