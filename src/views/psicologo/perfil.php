@@ -8,7 +8,7 @@
 <?php endif; ?>
 
 <h2>Perfil do Psicólogo</h2>
-<form method="POST" action="/atualizar_perfil" enctype="multipart/form-data" class="card p-4 shadow-sm">
+<form method="POST" action="/perfil" enctype="multipart/form-data" class="card p-4 shadow-sm">
 
     <div class="mb-3">
         <label>CRP:</label>

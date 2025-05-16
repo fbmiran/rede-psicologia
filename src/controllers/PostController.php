@@ -52,33 +52,36 @@ class PostController
             $_SESSION['mensagem'] = 'Post publicado com sucesso!';
         }
 
-        header('Location: /?rota=mural');
+        header('Location: /mural');
     }
 
     public function seguir()
     {
         $seguidor_id = $_SESSION['usuario']['id'];
         $seguido_id = $_GET['id'] ?? null;
-
+    
         if ($seguido_id && $seguidor_id !== $seguido_id) {
             $stmt = $this->pdo->prepare("INSERT IGNORE INTO seguidores (seguidor_id, seguido_id) VALUES (?, ?)");
             $stmt->execute([$seguidor_id, $seguido_id]);
         }
-
-        header('Location: /perfil&id=' . $seguido_id);
+    
+        header('Location: /perfil/publico/' . $seguido_id);
+        exit;
     }
-
+    
     public function deixarDeSeguir()
     {
         $seguidor_id = $_SESSION['usuario']['id'];
         $seguido_id = $_GET['id'] ?? null;
-
+    
         if ($seguido_id) {
             $stmt = $this->pdo->prepare("DELETE FROM seguidores WHERE seguidor_id = ? AND seguido_id = ?");
             $stmt->execute([$seguidor_id, $seguido_id]);
         }
-
-        header('Location: /perfil&id=' . $seguido_id);
+    
+        header('Location: /perfil/publico/' . $seguido_id);
+        exit;
     }
+    
 
 }

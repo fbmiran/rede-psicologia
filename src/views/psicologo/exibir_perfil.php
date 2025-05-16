@@ -20,18 +20,12 @@
         <strong>Sobre:</strong><br>
         <?= nl2br(htmlspecialchars($dados['bio'])) ?>
     </div>
-
-    <!-- Aqui futuramente: lista de posts -->
 </div>
-<?php if ($_SESSION['usuario']['id'] !== $dados['usuario_id']): ?>
-    <?php
-        $stmtSeguindo = $this->pdo->prepare("SELECT 1 FROM seguidores WHERE seguidor_id = ? AND seguido_id = ?");
-        $stmtSeguindo->execute([$_SESSION['usuario']['id'], $dados['usuario_id']]);
-        $jaSeguindo = $stmtSeguindo->fetchColumn();
-    ?>
+
+<?php if (!empty($usuarioLogado) && $usuarioLogado['id'] !== $dados['usuario_id']): ?>
     <?php if ($jaSeguindo): ?>
-        <a href="/?rota=deixar_de_seguir&id=<?= $dados['usuario_id'] ?>">Deixar de seguir</a>
+        <a href="/deixarDeSeguir?id=<?= $dados['usuario_id'] ?>" class="btn btn-danger mt-3">Deixar de seguir</a>
     <?php else: ?>
-        <a href="/?rota=seguir&id=<?= $dados['usuario_id'] ?>">Seguir</a>
+        <a href="/seguir?id=<?= $dados['usuario_id'] ?>" class="btn btn-primary mt-3">Seguir</a>
     <?php endif; ?>
 <?php endif; ?>

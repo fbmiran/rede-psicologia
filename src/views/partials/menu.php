@@ -24,7 +24,7 @@ nav.menu a:hover {
 <nav class="menu">
     <a href="/perfil">Meu Perfil</a> |
     <a href="/ver_perfil&id=<?= $_SESSION['usuario']['id'] ?>">Ver como público</a> |
-    <a href="/atualizar_perfil">Editar Perfil</a> |
+    <a href="/perfil/editar">Editar Perfil</a> |
     <a href="/mural">Mural</a> |
     <a href="/psicologos">Psicólogos</a> |
     <a href="/logout">Sair</a>

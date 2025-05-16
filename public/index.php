@@ -50,6 +50,7 @@ switch ($rota) {
     case (preg_match('/^perfil\/publico\/(\d+)$/', $rota, $matches) ? true : false):
         $psicologo->verPerfil($matches[1]);
         break;
+        
 
     case 'mural':
         $postController->mural();

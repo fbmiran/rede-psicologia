@@ -24,11 +24,26 @@ class PsicologoController
 
         include __DIR__ . '/../views/psicologo/perfil.php';
     }
-
+    public function editarPerfil()
+    {
+        $usuarioId = $_SESSION['usuario']['id'];
+    
+        $stmt = $this->pdo->prepare("SELECT * FROM psicologos WHERE usuario_id = ?");
+        $stmt->execute([$usuarioId]);
+        $dados = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        include __DIR__ . '/../views/psicologo/perfil.php';
+    }
     public function atualizarPerfil()
     {
-        if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['tipo'] !== 'psicologo') {
+        /*if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['tipo'] !== 'psicologo') {
             header('Location: /?rota=login');
+            exit;
+        }*/
+        error_log('ID do usuário na sessão: ' . ($_SESSION['usuario']['id'] ?? 'nenhum'));
+
+        if (!isset($_SESSION['usuario'])) {
+            header('Location: /login');
             exit;
         }
 
@@ -133,36 +148,37 @@ class PsicologoController
 
         $_SESSION['mensagem'] = 'Perfil atualizado com sucesso!';
         
-        header('Location: /?rota=perfil');
+        header('Location: /perfil');
+        exit;
     }
 
-    public function verPerfil()
+    public function verPerfil($id)
     {
-        if (!isset($_GET['id'])) {
-            header('Location: /?rota=erro');
-            exit;
-        }
-
-        $id = $_GET['id'];
-
-        $stmt = $this->pdo->prepare("SELECT u.nome, p.* FROM usuarios u JOIN psicologos p ON u.id = p.usuario_id WHERE u.id = ?");
+        $stmt = $this->pdo->prepare("SELECT u.id as usuario_id, u.nome, p.especialidades, p.bio, p.foto_perfil 
+                                    FROM psicologos p
+                                    JOIN usuarios u ON u.id = p.usuario_id
+                                    WHERE p.usuario_id = ?");
         $stmt->execute([$id]);
         $dados = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$dados) {
-            echo "Perfil não encontrado";
-            return;
+            echo "Psicólogo não encontrado.";
+            exit;
         }
 
-        $seguindo = false;
-        if (isset($_SESSION['usuario'])) {
-            $stmtSeguindo = $this->pdo->prepare("SELECT COUNT(*) FROM seguidores WHERE seguidor_id = ? AND seguido_id = ?");
-            $stmtSeguindo->execute([$_SESSION['usuario']['id'], $id]);
-            $seguindo = $stmtSeguindo->fetchColumn() > 0;
+        // Pega usuário logado
+        $usuarioLogado = $_SESSION['usuario'] ?? null;
+        $jaSeguindo = false;
+
+        if ($usuarioLogado && $usuarioLogado['id'] !== $dados['usuario_id']) {
+            $stmtSeguindo = $this->pdo->prepare("SELECT 1 FROM seguidores WHERE seguidor_id = ? AND seguido_id = ?");
+            $stmtSeguindo->execute([$usuarioLogado['id'], $dados['usuario_id']]);
+            $jaSeguindo = $stmtSeguindo->fetchColumn();
         }
 
         include __DIR__ . '/../views/psicologo/exibir_perfil.php';
     }
+
 
     public function listarPsicologos()
     {
