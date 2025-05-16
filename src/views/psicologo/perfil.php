@@ -1,3 +1,5 @@
+<?php include __DIR__ . '/../partials/menu.php'; ?>
+
 <?php if (!empty($_SESSION['mensagem'])): ?>
     <div class="alert alert-success">
         <?= $_SESSION['mensagem'] ?>
@@ -6,7 +8,7 @@
 <?php endif; ?>
 
 <h2>Perfil do Psicólogo</h2>
-<form method="POST" action="/?rota=atualizar_perfil" enctype="multipart/form-data" class="card p-4 shadow-sm">
+<form method="POST" action="/atualizar_perfil" enctype="multipart/form-data" class="card p-4 shadow-sm">
 
     <div class="mb-3">
         <label>CRP:</label>
@@ -58,10 +60,32 @@
     <div class="mb-3">
         <label>Foto de perfil:</label>
         <?php if (!empty($dados['foto_perfil'])): ?>
-            <div><img src="/Uploads/PerfilPicture<?= $dados['foto_perfil'] ?>" width="120" class="rounded-circle mb-2"></div>
+            <div><img src="/Uploads/PerfilPicture/<?= $dados['foto_perfil'] ?>" width="120" class="rounded-circle mb-2"></div>
         <?php endif; ?>
         <input type="file" name="foto" class="form-control">
     </div>
 
     <button type="submit" class="btn btn-primary">Salvar</button>
 </form>
+
+<script>
+document.querySelector('input[name="cep"]').addEventListener('blur', function () {
+    const cep = this.value.replace(/\D/g, '');
+
+    if (cep.length !== 8) return;
+
+    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.erro) {
+                document.querySelector('input[name="endereco"]').value = data.logradouro || '';
+                document.querySelector('input[name="cidade"]').value = data.localidade || '';
+                document.querySelector('input[name="estado"]').value = data.uf || '';
+                document.querySelector('input[name="complemento"]').value = data.complemento || '';
+            } else {
+                alert('CEP não encontrado.');
+            }
+        })
+        .catch(() => alert('Erro ao consultar o CEP.'));
+});
+</script>

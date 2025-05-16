@@ -25,7 +25,7 @@ class AuthController {
         $psicologo_id = $tipo === 'paciente' ? $_POST['psicologo_id'] : null;
 
         if ($this->usuario->cadastrar($nome, $email, $senha, $tipo, $psicologo_id)) {
-            header('Location: /?rota=login');
+            header('Location: /login');
             exit;
         } else {
             echo "Erro ao cadastrar.";
@@ -40,7 +40,7 @@ class AuthController {
 
         if ($usuario) {
             $_SESSION['usuario'] = $usuario;
-            header('Location: /?rota=dashboard');
+            header('Location: /dashboard');
             exit;
         } else {
             echo "E-mail ou senha inválidos.";
@@ -49,12 +49,12 @@ class AuthController {
 
     public function logout() {
         session_destroy();
-        header('Location: /?rota=login');
+        header('Location: /login');
     }
 
     public function dashboard() {
         if (!isset($_SESSION['usuario'])) {
-            header('Location: /?rota=login');
+            header('Location: /login');
             exit;
         }
     

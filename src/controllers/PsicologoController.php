@@ -34,10 +34,39 @@ class PsicologoController
 
         $usuario_id = $_SESSION['usuario']['id'];
 
+        /*$foto = null;
+        if (!empty($_FILES['foto']['name'])) {
+            $nomeFoto = uniqid() . '-' . $_FILES['foto']['name'];
+            $destino = __DIR__ . '/../../public/Uploads/PerfilPicture/' . $nomeFoto;
+            move_uploaded_file($_FILES['foto']['tmp_name'], $destino);
+            $foto = $nomeFoto;
+        }*/
+
+        if (!empty($_FILES['foto']['name'])) {
+            // Buscar foto anterior
+            $stmtFoto = $this->pdo->prepare("SELECT foto_perfil FROM psicologos WHERE usuario_id = ?");
+            $stmtFoto->execute([$usuario_id]);
+            $fotoAntiga = $stmtFoto->fetchColumn();
+        
+            // Apagar foto anterior se existir
+            if ($fotoAntiga) {
+                $caminhoAntigo = __DIR__ . '/../public/Uploads/PerfilPicture/' . $fotoAntiga;
+                if (file_exists($caminhoAntigo)) {
+                    unlink($caminhoAntigo);
+                }
+            }
+        
+            // Salvar nova foto
+            $nomeFoto = uniqid() . '-' . $_FILES['foto']['name'];
+            $destino = __DIR__ . '/../public/Uploads/PerfilPicture/' . $nomeFoto;
+            move_uploaded_file($_FILES['foto']['tmp_name'], $destino);
+            $foto = $nomeFoto;
+        }
+        
         $foto = null;
         if (!empty($_FILES['foto']['name'])) {
             $nomeFoto = uniqid() . '-' . $_FILES['foto']['name'];
-            $destino = __DIR__ . '/../../public/Uploads/PerfilPicture' . $nomeFoto;
+            $destino = __DIR__ . '/../../public/Uploads/PerfilPicture/' . $nomeFoto;
             move_uploaded_file($_FILES['foto']['tmp_name'], $destino);
             $foto = $nomeFoto;
         }
@@ -106,4 +135,45 @@ class PsicologoController
         
         header('Location: /?rota=perfil');
     }
+
+    public function verPerfil()
+    {
+        if (!isset($_GET['id'])) {
+            header('Location: /?rota=erro');
+            exit;
+        }
+
+        $id = $_GET['id'];
+
+        $stmt = $this->pdo->prepare("SELECT u.nome, p.* FROM usuarios u JOIN psicologos p ON u.id = p.usuario_id WHERE u.id = ?");
+        $stmt->execute([$id]);
+        $dados = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$dados) {
+            echo "Perfil não encontrado";
+            return;
+        }
+
+        $seguindo = false;
+        if (isset($_SESSION['usuario'])) {
+            $stmtSeguindo = $this->pdo->prepare("SELECT COUNT(*) FROM seguidores WHERE seguidor_id = ? AND seguido_id = ?");
+            $stmtSeguindo->execute([$_SESSION['usuario']['id'], $id]);
+            $seguindo = $stmtSeguindo->fetchColumn() > 0;
+        }
+
+        include __DIR__ . '/../views/psicologo/exibir_perfil.php';
+    }
+
+    public function listarPsicologos()
+    {
+        $stmt = $this->pdo->query("SELECT u.id, u.nome, p.foto_perfil FROM usuarios u 
+                                JOIN psicologos p ON u.id = p.usuario_id 
+                                WHERE u.tipo = 'psicologo'");
+
+        $psicologos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        include __DIR__ . '/../views/psicologo/lista_psicologos.php';
+    }
+
+
+
 }
